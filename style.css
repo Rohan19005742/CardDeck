@@ -16,7 +16,7 @@ body {
 .card {
   width: 100%;
   aspect-ratio: 2 / 3;
-  background-image: url("cards/back.png");
+  background-image: url("IMG_2206.webp");
   background-size: cover;
   background-position: center;
   border-radius: 8px;

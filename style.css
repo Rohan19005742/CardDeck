@@ -1,0 +1,54 @@
+body {
+  margin: 0;
+  background: #0b3d2e;
+  font-family: sans-serif;
+}
+
+/* Deck layout */
+#deck {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  padding: 16px;
+}
+
+/* Card backs */
+.card {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  background-image: url("cards/back.png");
+  background-size: cover;
+  background-position: center;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* Reveal screen */
+#reveal {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+#reveal img {
+  width: 70%;
+  max-width: 300px;
+  animation: flip 0.4s ease;
+}
+
+.hidden {
+  display: none;
+}
+
+@keyframes flip {
+  from {
+    transform: rotateY(90deg);
+  }
+  to {
+    transform: rotateY(0deg);
+  }
+}

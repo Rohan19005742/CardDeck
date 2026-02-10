@@ -34,6 +34,32 @@ let forcedIndex = 0;
 let revealedCards = new Set();
 let firstCardFlipped = false;
 
+// Create a shuffled copy of all 52 card indices for pre-assignment
+function createShuffledDeck() {
+  const deck = [];
+  for (let i = 0; i < forcedCards.length; i++) {
+    deck.push(i);
+  }
+  // Fisher-Yates shuffle
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  return deck;
+}
+
+const shuffledDeck = createShuffledDeck();
+
+// Preload all card images to avoid loading delays on flip
+function preloadImages() {
+  forcedCards.forEach((card) => {
+    const img = new Image();
+    img.src = "cards/" + card;
+  });
+}
+
+preloadImages();
+
 function updateForcedCard() {
   if (revealImg) revealImg.src = "cards/" + forcedCards[forcedIndex];
 }
@@ -68,14 +94,16 @@ for (let i = 0; i < 52; i++) {
   back.className = "card-back";
   const backImg = document.createElement("img");
   backImg.className = "card-face-img";
-  // do NOT initialize src here - will be set on flip
+  // Pre-assign this card a random card from the shuffled deck
+  const assignedCardIndex = shuffledDeck[i];
+  backImg.src = "cards/" + forcedCards[assignedCardIndex];
   back.appendChild(backImg);
 
   inner.appendChild(front);
   inner.appendChild(back);
   card.appendChild(inner);
 
-  // flip this specific card to show the forced card (first time) or random card (subsequent)
+  // flip this specific card to show the forced card (first time) or pre-assigned card (subsequent)
   card.addEventListener("click", (e) => {
     e.stopPropagation();
     if (!card.classList.contains("flipped")) {
@@ -86,12 +114,8 @@ for (let i = 0; i < 52; i++) {
         revealedCards.add(forcedIndex);
         firstCardFlipped = true;
       } else {
-        // Subsequent flips: show a random unrevealed card
-        const randomIndex = getRandomUnrevealedCard();
-        if (randomIndex !== -1) {
-          backImg.src = "cards/" + forcedCards[randomIndex];
-          revealedCards.add(randomIndex);
-        }
+        // Subsequent flips: show the pre-assigned card (already set, so just mark as revealed)
+        revealedCards.add(assignedCardIndex);
       }
     }
     card.classList.toggle("flipped");

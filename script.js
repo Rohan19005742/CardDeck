@@ -92,3 +92,21 @@ if (forceDropdown) {
 reveal.addEventListener("click", () => {
   reveal.classList.remove("show");
 });
+
+// Disable button interaction when it's scrolled out of the viewport (mobile fix)
+function updateButtonInteractable() {
+  if (!forceBtn) return;
+  const rect = forceBtn.getBoundingClientRect();
+  const inView = rect.top >= 0 && rect.left >= 0 && rect.top <= window.innerHeight && rect.left <= window.innerWidth;
+  forceBtn.style.pointerEvents = inView ? 'auto' : 'none';
+  // hide dropdown if button is out of view
+  if (!inView && forceDropdown && !forceDropdown.classList.contains('hidden')) {
+    forceDropdown.classList.add('hidden');
+  }
+}
+
+window.addEventListener('scroll', updateButtonInteractable, { passive: true });
+window.addEventListener('resize', updateButtonInteractable);
+window.addEventListener('touchmove', updateButtonInteractable, { passive: true });
+// initial check
+updateButtonInteractable();

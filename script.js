@@ -34,11 +34,13 @@ let forcedIndex = 0;
 let revealedCards = new Set();
 let firstCardFlipped = false;
 
-// Create a shuffled copy of all 52 card indices for pre-assignment
-function createShuffledDeck() {
+// Create a shuffled copy of all card indices except the forced card, for pre-assignment
+function createShuffledDeckExcludingForced(excludeIndex) {
   const deck = [];
   for (let i = 0; i < forcedCards.length; i++) {
-    deck.push(i);
+    if (i !== excludeIndex) {
+      deck.push(i);
+    }
   }
   // Fisher-Yates shuffle
   for (let i = deck.length - 1; i > 0; i--) {
@@ -48,17 +50,31 @@ function createShuffledDeck() {
   return deck;
 }
 
-const shuffledDeck = createShuffledDeck();
+let shuffledDeck = [];
 
-// Preload all card images to avoid loading delays on flip
-function preloadImages() {
-  forcedCards.forEach((card) => {
-    const img = new Image();
-    img.src = "cards/" + card;
-  });
+// Create a shuffled copy of all card indices except the forced card, for pre-assignment
+function createShuffledDeckExcludingForced(excludeIndex) {
+  const deck = [];
+  for (let i = 0; i < forcedCards.length; i++) {
+    if (i !== excludeIndex) {
+      deck.push(i);
+    }
+  }
+  // Fisher-Yates shuffle
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  return deck;
 }
 
-preloadImages();
+// Preload images for a list of card indices
+function preloadImages(indices) {
+  indices.forEach((idx) => {
+    const img = new Image();
+    img.src = "cards/" + forcedCards[idx];
+  });
+}
 
 function updateForcedCard() {
   if (revealImg) revealImg.src = "cards/" + forcedCards[forcedIndex];
@@ -94,28 +110,49 @@ for (let i = 0; i < 52; i++) {
   back.className = "card-back";
   const backImg = document.createElement("img");
   backImg.className = "card-face-img";
-  // Pre-assign this card a random card from the shuffled deck
-  const assignedCardIndex = shuffledDeck[i];
-  backImg.src = "cards/" + forcedCards[assignedCardIndex];
+  // Do NOT initialize src - will be set on flip
   back.appendChild(backImg);
 
   inner.appendChild(front);
   inner.appendChild(back);
   card.appendChild(inner);
 
-  // flip this specific card to show the forced card (first time) or pre-assigned card (subsequent)
+  // flip this specific card
   card.addEventListener("click", (e) => {
     e.stopPropagation();
     if (!card.classList.contains("flipped")) {
       // Card is about to flip
       if (!firstCardFlipped) {
-        // First flip: show the forced card
+        // First flip: show the forced card and initialize remaining 51 cards
         backImg.src = "cards/" + forcedCards[forcedIndex];
         revealedCards.add(forcedIndex);
         firstCardFlipped = true;
+        
+        // Generate shuffled deck excluding forced card and preload those images
+        shuffledDeck = createShuffledDeckExcludingForced(forcedIndex);
+        preloadImages(shuffledDeck);
+        
+        // Assign the remaining cards their pre-shuffled images
+        let deckIndex = 0;
+        for (let j = 0; j < 52; j++) {
+          const otherCard = deck.children[j];
+          if (otherCard !== card) {
+            const otherImg = otherCard.querySelector(".card-face-img");
+            if (deckIndex < shuffledDeck.length) {
+              otherImg.src = "cards/" + forcedCards[shuffledDeck[deckIndex]];
+              deckIndex++;
+            }
+          }
+        }
       } else {
-        // Subsequent flips: show the pre-assigned card (already set, so just mark as revealed)
-        revealedCards.add(assignedCardIndex);
+        // Subsequent flips: card already has its pre-assigned image (set above)
+        // Just mark it as revealed
+        const imageSrc = backImg.src;
+        const cardFilename = imageSrc.split("/").pop();
+        const cardIndex = forcedCards.findIndex(c => c === cardFilename);
+        if (cardIndex !== -1) {
+          revealedCards.add(cardIndex);
+        }
       }
     }
     card.classList.toggle("flipped");
@@ -134,6 +171,8 @@ function buildDropdownOptions() {
     option.addEventListener("click", (e) => {
       e.stopPropagation();
       forcedIndex = index;
+      // Regenerate shuffled deck to exclude the new forced card
+      shuffledDeck = createShuffledDeckExcludingForced(forcedIndex);
       updateForcedCard();
       forceDropdown.classList.add("hidden");
     });

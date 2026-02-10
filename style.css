@@ -59,7 +59,7 @@ body {
 
 /* Invisible force button */
 .invisible-btn {
-  position: absolute;
+  position: fixed;
   top: 12px;
   right: 12px;
   width: 48px;
@@ -84,7 +84,7 @@ body {
 
 /* Force card dropdown menu */
 .force-dropdown {
-  position: absolute;
+  position: fixed;
   top: 60px;
   right: 12px;
   background: #1a5c49;

@@ -5,6 +5,7 @@ const revealImg = document.getElementById("revealImg");
 const forceBtn = document.getElementById("forceBtn");
 const forceDropdown = document.getElementById("forceDropdown");
 const dropdownContent = document.getElementById("dropdownContent");
+const deckWrapper = document.getElementById("deckWrapper");
 
 // Safety: ensure reveal is hidden on load
 reveal.classList.remove("show");
@@ -93,14 +94,15 @@ reveal.addEventListener("click", () => {
   reveal.classList.remove("show");
 });
 
-// Disable button interaction when it's scrolled out of the viewport (mobile fix)
+// Disable button interaction when the page is scrolled past the deck
 function updateButtonInteractable() {
-  if (!forceBtn) return;
-  const rect = forceBtn.getBoundingClientRect();
-  const inView = rect.top >= 0 && rect.left >= 0 && rect.top <= window.innerHeight && rect.left <= window.innerWidth;
-  forceBtn.style.pointerEvents = inView ? 'auto' : 'none';
-  // hide dropdown if button is out of view
-  if (!inView && forceDropdown && !forceDropdown.classList.contains('hidden')) {
+  if (!forceBtn || !deckWrapper) return;
+  const deckRect = deckWrapper.getBoundingClientRect();
+  // If deck's top has scrolled above the viewport top, disable the fixed button
+  const deckAtTopOrBelow = deckRect.top >= 0;
+  forceBtn.style.pointerEvents = deckAtTopOrBelow ? 'auto' : 'none';
+  // hide dropdown if button is disabled
+  if (!deckAtTopOrBelow && forceDropdown && !forceDropdown.classList.contains('hidden')) {
     forceDropdown.classList.add('hidden');
   }
 }

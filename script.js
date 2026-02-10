@@ -37,14 +37,35 @@ function updateForcedCard() {
 // Initialize reveal image
 updateForcedCard();
 
-// Create 52 identical face-down cards
+// Create 52 identical face-down cards (each has a flippable front/back)
 for (let i = 0; i < 52; i++) {
   const card = document.createElement("div");
   card.className = "card";
 
-  // ANY card reveals the forced card
-  card.addEventListener("click", () => {
-    reveal.classList.add("show");
+  const inner = document.createElement("div");
+  inner.className = "card-inner";
+
+  const front = document.createElement("div");
+  front.className = "card-front";
+
+  const back = document.createElement("div");
+  back.className = "card-back";
+  const backImg = document.createElement("img");
+  backImg.className = "card-face-img";
+  // initialize with current forced card
+  backImg.src = "cards/" + forcedCards[forcedIndex];
+  back.appendChild(backImg);
+
+  inner.appendChild(front);
+  inner.appendChild(back);
+  card.appendChild(inner);
+
+  // flip this specific card to show the forced card
+  card.addEventListener("click", (e) => {
+    e.stopPropagation();
+    // update back image to current forced card before flipping
+    backImg.src = "cards/" + forcedCards[forcedIndex];
+    card.classList.toggle("flipped");
   });
 
   deck.appendChild(card);

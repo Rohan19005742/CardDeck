@@ -68,8 +68,7 @@ for (let i = 0; i < 52; i++) {
   back.className = "card-back";
   const backImg = document.createElement("img");
   backImg.className = "card-face-img";
-  // initialize with current forced card
-  backImg.src = "cards/" + forcedCards[forcedIndex];
+  // do NOT initialize src here - will be set on flip
   back.appendChild(backImg);
 
   inner.appendChild(front);

@@ -30,8 +30,24 @@ const cardNames = {
 
 let forcedIndex = 0;
 
+// Track which cards have been revealed (by index in forcedCards)
+let revealedCards = new Set();
+let firstCardFlipped = false;
+
 function updateForcedCard() {
   if (revealImg) revealImg.src = "cards/" + forcedCards[forcedIndex];
+}
+
+// Get a random unrevealed card index
+function getRandomUnrevealedCard() {
+  const available = [];
+  for (let i = 0; i < forcedCards.length; i++) {
+    if (!revealedCards.has(i)) {
+      available.push(i);
+    }
+  }
+  if (available.length === 0) return -1; // all cards revealed
+  return available[Math.floor(Math.random() * available.length)];
 }
 
 // Initialize reveal image
@@ -60,11 +76,25 @@ for (let i = 0; i < 52; i++) {
   inner.appendChild(back);
   card.appendChild(inner);
 
-  // flip this specific card to show the forced card
+  // flip this specific card to show the forced card (first time) or random card (subsequent)
   card.addEventListener("click", (e) => {
     e.stopPropagation();
-    // update back image to current forced card before flipping
-    backImg.src = "cards/" + forcedCards[forcedIndex];
+    if (!card.classList.contains("flipped")) {
+      // Card is about to flip
+      if (!firstCardFlipped) {
+        // First flip: show the forced card
+        backImg.src = "cards/" + forcedCards[forcedIndex];
+        revealedCards.add(forcedIndex);
+        firstCardFlipped = true;
+      } else {
+        // Subsequent flips: show a random unrevealed card
+        const randomIndex = getRandomUnrevealedCard();
+        if (randomIndex !== -1) {
+          backImg.src = "cards/" + forcedCards[randomIndex];
+          revealedCards.add(randomIndex);
+        }
+      }
+    }
     card.classList.toggle("flipped");
   });
 

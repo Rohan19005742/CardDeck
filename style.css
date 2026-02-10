@@ -59,7 +59,7 @@ body {
 
 /* Invisible force button */
 .invisible-btn {
-  position: fixed;
+  position: absolute;
   top: 12px;
   right: 12px;
   width: 48px;
@@ -77,9 +77,14 @@ body {
   outline: 2px solid rgba(255,255,255,0.15);
 }
 
+/* Wrapper so absolute-positioned controls scroll with content */
+.deck-wrapper {
+  position: relative;
+}
+
 /* Force card dropdown menu */
 .force-dropdown {
-  position: fixed;
+  position: absolute;
   top: 60px;
   right: 12px;
   background: #1a5c49;

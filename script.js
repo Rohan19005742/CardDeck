@@ -2,6 +2,7 @@
 const deck = document.getElementById("deck");
 const reveal = document.getElementById("reveal");
 const revealImg = document.getElementById("revealImg");
+const slotsBtn = document.getElementById("slotsBtn");
 const forceBtn = document.getElementById("forceBtn");
 const forceDropdown = document.getElementById("forceDropdown");
 const dropdownContent = document.getElementById("dropdownContent");
@@ -182,6 +183,17 @@ function buildDropdownOptions() {
 
 buildDropdownOptions();
 
+// Slots button handler
+if (slotsBtn) {
+  slotsBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    // Store the forced card in sessionStorage
+    sessionStorage.setItem("forcedCard", forcedCards[forcedIndex]);
+    // Navigate to slots page
+    window.location.href = "slots.html";
+  });
+}
+
 // Toggle dropdown on button click
 if (forceBtn) {
   forceBtn.addEventListener("click", (e) => {
@@ -214,6 +226,9 @@ function updateButtonInteractable() {
   // If deck's top has scrolled above the viewport top, disable the fixed button
   const deckAtTopOrBelow = deckRect.top >= 0;
   forceBtn.style.pointerEvents = deckAtTopOrBelow ? 'auto' : 'none';
+  if (slotsBtn) {
+    slotsBtn.style.pointerEvents = deckAtTopOrBelow ? 'auto' : 'none';
+  }
   // hide dropdown if button is disabled
   if (!deckAtTopOrBelow && forceDropdown && !forceDropdown.classList.contains('hidden')) {
     forceDropdown.classList.add('hidden');

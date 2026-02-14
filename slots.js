@@ -207,38 +207,42 @@ function spin() {
   });
 
   // Calculate final positions
+  // Calculate final positions
   const finalPositions = forcedIndices.map(idx => -(idx * 110 - 90));
 
-  // Spin durations for each reel (creates staggered stop effect)
-  const spinDurations = [1200, 1400, 1600]; // milliseconds for each reel
+  // Spin durations for each reel - creates dramatic cascading stop effect
+  // First reel stops quickly, second a bit longer, third creates suspense
+  const spinDurations = [800, 1400, 2200]; // milliseconds for each reel
 
   // Animate each reel with natural deceleration
   spinDurations.forEach((duration, reelIndex) => {
     const reelContent = reelContents[reelIndex];
     const finalPosition = finalPositions[reelIndex];
     const startTime = performance.now();
-    const maxDistance = finalPosition; // distance to travel
 
     const animate = (currentTime) => {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
 
-      // Easing function: smooth deceleration (ease-out cubic)
-      // Starts fast, slows down as it approaches the end
-      const easeProgress = 1 - Math.pow(1 - progress, 3);
+      // Enhanced easing function: starts very fast, dramatically decelerates
+      // Using ease-out quart for more dramatic effect
+      const easeProgress = 1 - Math.pow(1 - progress, 4);
 
       // Apply smooth position
-      reelContent.style.transform = `translateY(${maxDistance * easeProgress}px)`;
+      reelContent.style.transform = `translateY(${finalPosition * easeProgress}px)`;
 
       if (progress < 1) {
         requestAnimationFrame(animate);
+      } else {
+        // Snap to final position to ensure no floating point errors
+        reelContent.style.transform = `translateY(${finalPosition}px)`;
       }
     };
 
     requestAnimationFrame(animate);
   });
 
-  // Show winning message after all reels stop
+  // Show winning message after all reels stop (after the longest duration)
   const longestDuration = Math.max(...spinDurations);
   setTimeout(() => {
     const cardName = cardNames[forcedCard];
